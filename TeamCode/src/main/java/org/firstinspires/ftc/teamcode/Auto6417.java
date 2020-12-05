@@ -114,6 +114,9 @@ public class Auto6417 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        int length = 0;
+        String detected = "None";
+
         if (opModeIsActive()) {
             while (opModeIsActive()) {
                 if (tfod != null) {
@@ -124,6 +127,21 @@ public class Auto6417 extends LinearOpMode {
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
                         // step through the list of recognitions and display boundary info.
                         int i = 0;
+                        if(updatedRecognitions.size() != length){
+                            length = updatedRecognitions.size();
+                            if(length > 0) {
+                                detected = updatedRecognitions.get(0).getLabel();
+                                telemetry.speak(detected);
+                            } else{
+                                detected = "None";
+                                telemetry.speak("None");
+                            }
+                        } else{
+                            if(length > 0 && detected != updatedRecognitions.get(0).getLabel()){
+                                detected = updatedRecognitions.get(0).getLabel();
+                                telemetry.speak(detected);
+                            }
+                        }
                         for (Recognition recognition : updatedRecognitions) {
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
                             telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
