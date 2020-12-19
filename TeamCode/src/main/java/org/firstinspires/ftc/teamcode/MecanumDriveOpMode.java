@@ -80,30 +80,52 @@ public class MecanumDriveOpMode extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        double forward, strafe, rotate;
+        double left_vert, left_horiz, right_vert, right_horiz;
 
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            forward = -gamepad1.left_stick_y;
-            strafe = gamepad1.left_stick_x;
-            rotate = gamepad1.right_stick_x;
+            left_vert = -gamepad1.left_stick_y;
+            left_horiz = gamepad1.left_stick_x;
+            right_vert = gamepad1.right_stick_y;
+            right_horiz = gamepad1.right_stick_x;
 
-
-            if(Math.abs(forward) > 0.3 || Math.abs(strafe) > 0.3 || Math.abs(rotate) > 0.3){
-                robot.setDriveSpeeds(forward * 0.7, strafe * 0.7, rotate, 0);
+            if(Math.abs(left_vert) > 0.3 || Math.abs(left_horiz) > 0.3 ||
+                    Math.abs(right_vert) > 0.3 || Math.abs(right_horiz) > 0.3){
+                robot.setDriveSpeeds(left_vert * 0.7, left_horiz * 0.7, right_vert * 0.7, right_horiz * 0.7, 0);
             }
             else{
-                robot.setDriveSpeeds(0, 0, 0, 0);
+                robot.setDriveSpeeds(0, 0, 0, 0, 0);
             }
 
             if(gamepad1.right_trigger >= 0.3){
-                robot.shoot(0.65);
+                robot.shoot(0.7);
             }else{
                 robot.shoot(0);
             }
+            if(gamepad1.left_trigger >=0.3){
+                robot.intake(1);
+            } else{
+                robot.intake(0);
+            }
 
+            if(gamepad1.x){
+                if(robot.armServo.getPosition() == 90){
+                    robot.arm(0);
+                } else{
+                    robot.arm(90);
+                }
+
+            }
+            if(gamepad1.y){
+                if(robot.grabServo.getPosition() == 20){
+                    robot.grab(80);
+                } else{
+                    robot.grab(20);
+                }
+
+            }
             // nudging allows us to move a small distance more precisely
             // than we can with the gamepad sticks
             if(gamepad1.dpad_up || gamepad2.dpad_up){
@@ -146,27 +168,27 @@ public class MecanumDriveOpMode extends LinearOpMode {
 
         switch(dir) {
             case FORWARD:
-                robot.setDriveSpeeds(0.2, 0, 0, 0);
+                robot.setDriveSpeeds(0.2, 0, 0.2, 0, 0);
                 break;
             case BACKWARD:
-                robot.setDriveSpeeds(-0.2, 0, 0, 0);
-                break;
-            case LEFT:
-                robot.setDriveSpeeds(0, 0, -0.2, 0);
-                break;
-            case RIGHT:
-                robot.setDriveSpeeds(0, 0, 0.2, 0);
+                robot.setDriveSpeeds(-0.2, 0, -0.2, 0, 0);
                 break;
             case STLEFT:
-                robot.setDriveSpeeds(0, -0.2, 0, 0);
+                robot.setDriveSpeeds(0, -0.2, 0, -0.2, 0);
                 break;
             case STRIGHT:
-                robot.setDriveSpeeds(0, 0.2, 0, 0);
+                robot.setDriveSpeeds(0, 0.2, 0, 0.2, 0);
+                break;
+            case LEFT:
+                robot.setDriveSpeeds(0.2, 0, 0, 0, 0);
+                break;
+            case RIGHT:
+                robot.setDriveSpeeds(0, 0, 0.2, 0, 0);
                 break;
         }
 
         sleep(sl);
-        robot.setDriveSpeeds(0, 0, 0, 0);
+        robot.setDriveSpeeds(0, 0, 0, 0, 0);
 
     }
 

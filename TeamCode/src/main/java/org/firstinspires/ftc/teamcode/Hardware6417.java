@@ -65,9 +65,11 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 public class Hardware6417
 {
     /* Public OpMode members. */
-    public DcMotorEx leftFront = null, rightFront = null, leftBack = null, rightBack = null, shooterTop = null, shooterBottom = null;
+    public DcMotorEx leftFront = null, rightFront = null, leftBack = null, rightBack = null,
+            shooterTop = null, shooterBottom = null, intake = null;
 
     BNO055IMU imu;
+    public Servo armServo = null, grabServo = null;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
@@ -90,13 +92,21 @@ public class Hardware6417
         // Save reference to Hardware map
         hwMap = ahwMap;
 
-        // Define and initialize motors
+        intake = hwMap.get(DcMotorEx.class, "intake");
+
+        // Define and initialize motor
         leftFront = hwMap.get(DcMotorEx.class, "FrontLeft");
         leftBack = hwMap.get(DcMotorEx.class, "BackLeft");
         rightFront = hwMap.get(DcMotorEx.class, "FrontRight");
         rightBack = hwMap.get(DcMotorEx.class, "BackRight");
         shooterTop = hwMap.get(DcMotorEx.class, "FrontShooter");
         shooterBottom = hwMap.get(DcMotorEx.class, "BackShooter");
+
+        armServo = hwMap.get(Servo.class, "armServo");
+        grabServo = hwMap.get(Servo.class, "grabServo");
+
+        armServo.setPosition(180);
+        grabServo.setPosition(20);
 
         // Set motor and servo directions based on orientation of motors on robot
         leftFront.setDirection(DcMotor.Direction.REVERSE);
@@ -136,7 +146,11 @@ public class Hardware6417
 
     public void shoot(double power){
         shooterTop.setPower(-power);
-        shooterBottom.setPower(-power);
+        shooterBottom.setPower(power);
+    }
+
+    public void intake(double power){
+        intake.setPower(-power);
     }
 
     public void drivetoPosition(int d, double power){
@@ -217,12 +231,13 @@ public class Hardware6417
 
     }
 
-    public void setDriveSpeeds(double forward, double strafe, double rotate, double correction) {
+    public void setDriveSpeeds(double left_vert, double left_horiz,
+                               double right_vert, double right_horiz, double correction) {
 
-        double frontLeftSpeed = forward + strafe + rotate - correction; //-correction
-        double frontRightSpeed = forward - strafe - rotate + correction; //+correction
-        double backLeftSpeed = forward - strafe + rotate - correction; //-correction
-        double backRightSpeed = forward + strafe - rotate + correction; //+correction
+        double frontLeftSpeed = left_vert + left_horiz - correction; //-correction
+        double frontRightSpeed = left_vert - left_horiz + correction; //+correction
+        double backLeftSpeed = right_vert - right_horiz - correction; //-correction
+        double backRightSpeed = right_vert + right_horiz + correction; //+correction
 
         double largest = 1.0;
         largest = Math.max(largest, Math.abs(frontLeftSpeed));
@@ -236,6 +251,14 @@ public class Hardware6417
         rightBack.setPower(backRightSpeed / largest);
 
 
+    }
+
+    public void arm(int pos){
+        armServo.setPosition(pos);
+    }
+
+    public void grab(int pos){
+        grabServo.setPosition(pos);
     }
 
     public void stop() {
