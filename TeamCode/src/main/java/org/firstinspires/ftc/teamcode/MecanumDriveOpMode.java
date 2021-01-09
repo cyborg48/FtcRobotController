@@ -32,6 +32,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 
@@ -53,7 +54,7 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 public class MecanumDriveOpMode extends LinearOpMode {
 
     enum Direction {
-        FORWARD, BACKWARD, LEFT, RIGHT, STLEFT, STRIGHT;
+        FORWARD, BACKWARD, LEFT, RIGHT, RTLEFT, RTRIGHT;
     }
 
     // Declare OpMode members.
@@ -80,81 +81,75 @@ public class MecanumDriveOpMode extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
-        double left_vert, left_horiz, right_vert, right_horiz;
-
+        double leftVert, rightVert, leftHoriz, rightHoriz;
 
         // run until the end of the match (driver presses STOP)
         while (opModeIsActive()) {
 
-            left_vert = -gamepad1.left_stick_y;
-            left_horiz = gamepad1.left_stick_x;
-            right_vert = gamepad1.right_stick_y;
-            right_horiz = gamepad1.right_stick_x;
+            leftVert = -gamepad1.left_stick_y;
+            leftHoriz = gamepad1.left_stick_x;
+            rightVert = -gamepad1.right_stick_y;
+            rightHoriz = gamepad1.right_stick_x;
 
-            if(Math.abs(left_vert) > 0.3 || Math.abs(left_horiz) > 0.3 ||
-                    Math.abs(right_vert) > 0.3 || Math.abs(right_horiz) > 0.3){
-                robot.setDriveSpeeds(left_vert * 0.7, left_horiz * 0.7, right_vert * 0.7, right_horiz * 0.7, 0);
-            }
-            else{
+            /***
+             if(Math.abs(leftVert) > 0.3 || Math.abs(rightVert) > 0.3 || Math.abs(leftHoriz) > 0.3 || Math.abs(rightHoriz) > 0.3){
+             robot.setDriveSpeeds(leftVert * 0.6, rightVert * 0.6, leftHoriz * 0.6, rightHoriz * 0.6, 0);
+             }
+             ***/
+            if (Math.abs(leftVert) > 0.3 || Math.abs(rightVert) > 0.3 || Math.abs(leftHoriz) > 0.3 || Math.abs(rightHoriz) > 0.3) {
+                robot.setDriveSpeeds(leftVert, rightVert, leftHoriz, rightHoriz, 0);
+            } else {
                 robot.setDriveSpeeds(0, 0, 0, 0, 0);
             }
 
-            if(gamepad1.right_trigger >= 0.3){
+            if (gamepad1.right_trigger >= 0.3) {
                 robot.shoot(0.7);
-            }else{
+            } else {
                 robot.shoot(0);
             }
-            if(gamepad1.left_trigger >=0.3){
+            if (gamepad1.left_trigger >= 0.3) {
                 robot.intake(1);
-            } else{
+                robot.shooterBottom.setPower(1);
+            } else {
                 robot.intake(0);
+                robot.shooterBottom.setPower(0);
             }
 
-            if(gamepad1.x){
-                if(robot.armServo.getPosition() == 90){
-                    robot.arm(0);
-                } else{
-                    robot.arm(90);
+            if (gamepad1.dpad_up) {
+                if (robot.armServo.getPosition() <= 0.9) {
+                    robot.arm(robot.armServo.getPosition() + 0.005);
                 }
-
+            } else if (gamepad1.dpad_down) {
+                if (robot.armServo.getPosition() >= 0.3) {
+                    robot.arm(robot.armServo.getPosition() - 0.005);
+                }
             }
-            if(gamepad1.y){
-                if(robot.grabServo.getPosition() == 20){
-                    robot.grab(80);
-                } else{
-                    robot.grab(20);
-                }
-
+            if (gamepad1.dpad_left) {
+                robot.grab(0);
+            } else if (gamepad1.dpad_right) {
+                robot.grab(0.8);
             }
             // nudging allows us to move a small distance more precisely
             // than we can with the gamepad sticks
-            if(gamepad1.dpad_up || gamepad2.dpad_up){
+
+            if (gamepad2.dpad_up) {
                 nudgeRobot(Direction.FORWARD, 30);
-            }
-            else if(gamepad1.dpad_left || gamepad2.dpad_left){
+            } else if (gamepad2.dpad_left) {
                 nudgeRobot(Direction.LEFT, 30);
-            }
-            else if(gamepad1.dpad_down || gamepad2.dpad_down){
+            } else if (gamepad2.dpad_down) {
                 nudgeRobot(Direction.BACKWARD, 30);
-            }
-            else if(gamepad1.dpad_right || gamepad2.dpad_right){
+            } else if (gamepad2.dpad_right) {
                 nudgeRobot(Direction.RIGHT, 30);
+            } else if (gamepad2.left_bumper) {
+                nudgeRobot(Direction.RTLEFT, 30);
+            } else if (gamepad1.right_bumper) {
+                nudgeRobot(Direction.RTRIGHT, 30);
             }
-            else if(gamepad1.left_bumper || gamepad2.left_bumper){
-                nudgeRobot(Direction.STLEFT, 30);
-            }
-            else if(gamepad2.right_bumper || gamepad1.right_bumper){
-                nudgeRobot(Direction.STRIGHT, 30);
-            }
-
-            if(gamepad1.y || gamepad2.y){
-                //resetArm();
-            }
-
             telemetry.addData("LeftBack:", robot.leftBack.getCurrentPosition());
             telemetry.addData("RightBack:", robot.rightBack.getCurrentPosition());
 
             telemetry.addData("LeftBackSpeed:", robot.leftBack.getVelocity());
+            telemetry.addData("Arm Servo position: ", robot.armServo.getPosition());
             telemetry.update();
 
         }
@@ -164,32 +159,33 @@ public class MecanumDriveOpMode extends LinearOpMode {
 
     // nudges robot based on direction passed in
     // directions will be dealt with in runOpMode
+
     private void nudgeRobot(Direction dir, int sl) {
 
-        switch(dir) {
+        switch (dir) {
             case FORWARD:
-                robot.setDriveSpeeds(0.2, 0, 0.2, 0, 0);
+                robot.setDriveSpeeds(0.2, 0.2, 0, 0, 0);
                 break;
             case BACKWARD:
-                robot.setDriveSpeeds(-0.2, 0, -0.2, 0, 0);
-                break;
-            case STLEFT:
-                robot.setDriveSpeeds(0, -0.2, 0, -0.2, 0);
-                break;
-            case STRIGHT:
-                robot.setDriveSpeeds(0, 0.2, 0, 0.2, 0);
+                robot.setDriveSpeeds(-0.2, -0.2, 0, 0, 0);
                 break;
             case LEFT:
-                robot.setDriveSpeeds(0.2, 0, 0, 0, 0);
+                robot.setDriveSpeeds(0, 0, -0.2, -0.2, 0);
                 break;
             case RIGHT:
-                robot.setDriveSpeeds(0, 0, 0.2, 0, 0);
+                robot.setDriveSpeeds(0, 0, 0.2, 0.2, 0);
+                break;
+            case RTLEFT:
+                robot.setDriveSpeeds(-0.2, 0.2, 0, 0, 0);
+                break;
+            case RTRIGHT:
+                robot.setDriveSpeeds(0.2, -0.2, 0, 0, 0);
                 break;
         }
+
 
         sleep(sl);
         robot.setDriveSpeeds(0, 0, 0, 0, 0);
 
     }
-
 }

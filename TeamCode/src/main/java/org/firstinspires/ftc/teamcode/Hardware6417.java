@@ -105,14 +105,16 @@ public class Hardware6417
         armServo = hwMap.get(Servo.class, "armServo");
         grabServo = hwMap.get(Servo.class, "grabServo");
 
-        armServo.setPosition(180);
-        grabServo.setPosition(20);
+        armServo.setPosition(0.9);
+        grabServo.setPosition(0.8);
+
+        grabServo.setDirection(Servo.Direction.REVERSE);
 
         // Set motor and servo directions based on orientation of motors on robot
         leftFront.setDirection(DcMotor.Direction.REVERSE);
-        leftBack.setDirection(DcMotor.Direction.REVERSE);
+        leftBack.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
-        rightBack.setDirection(DcMotor.Direction.FORWARD);
+        rightBack.setDirection(DcMotor.Direction.REVERSE);
 
         // Set all motors to zero power
         leftFront.setPower(0);
@@ -146,7 +148,7 @@ public class Hardware6417
 
     public void shoot(double power){
         shooterTop.setPower(-power);
-        shooterBottom.setPower(power);
+        //shooterBottom.setPower(power);
     }
 
     public void intake(double power){
@@ -231,13 +233,12 @@ public class Hardware6417
 
     }
 
-    public void setDriveSpeeds(double left_vert, double left_horiz,
-                               double right_vert, double right_horiz, double correction) {
+    public void setDriveSpeeds(double leftVert, double rightVert, double leftHoriz, double rightHoriz, double correction) {
 
-        double frontLeftSpeed = left_vert + left_horiz - correction; //-correction
-        double frontRightSpeed = left_vert - left_horiz + correction; //+correction
-        double backLeftSpeed = right_vert - right_horiz - correction; //-correction
-        double backRightSpeed = right_vert + right_horiz + correction; //+correction
+        double frontLeftSpeed = leftVert - leftHoriz - correction; //-correction
+        double frontRightSpeed = rightVert + rightHoriz + correction; //+correction
+        double backLeftSpeed = leftVert + leftHoriz - correction; //-correction
+        double backRightSpeed = rightVert - rightHoriz + correction; //+correction
 
         double largest = 1.0;
         largest = Math.max(largest, Math.abs(frontLeftSpeed));
@@ -247,17 +248,17 @@ public class Hardware6417
 
         leftFront.setPower(frontLeftSpeed / largest);
         rightFront.setPower(frontRightSpeed / largest);
-        leftBack.setPower(backLeftSpeed / largest);
+        leftBack.setPower((backLeftSpeed / largest)); //* (1.0/0.6)
         rightBack.setPower(backRightSpeed / largest);
 
 
     }
 
-    public void arm(int pos){
+    public void arm(double pos){
         armServo.setPosition(pos);
     }
 
-    public void grab(int pos){
+    public void grab(double pos){
         grabServo.setPosition(pos);
     }
 

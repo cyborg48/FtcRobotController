@@ -131,15 +131,15 @@ public class Auto6417 extends LinearOpMode {
                             length = updatedRecognitions.size();
                             if(length > 0) {
                                 detected = updatedRecognitions.get(0).getLabel();
-                                telemetry.speak(detected);
+                                //telemetry.speak(detected);
                             } else{
                                 detected = "None";
-                                telemetry.speak("None");
+                                //telemetry.speak("None");
                             }
                         } else{
                             if(length > 0 && detected != updatedRecognitions.get(0).getLabel()){
                                 detected = updatedRecognitions.get(0).getLabel();
-                                telemetry.speak(detected);
+                                //telemetry.speak(detected);
                             }
                         }
                         for (Recognition recognition : updatedRecognitions) {
