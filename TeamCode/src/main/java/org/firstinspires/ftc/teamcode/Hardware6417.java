@@ -75,6 +75,9 @@ public class Hardware6417
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
 
+    private double RADIUS = 0;
+    private double CPR = 1440;
+
     /* Constructor */
     public Hardware6417(){
     }
@@ -123,7 +126,7 @@ public class Hardware6417
         rightBack.setPower(0);
 
         //armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
@@ -158,9 +161,9 @@ public class Hardware6417
     public void drivetoPosition(int d, double power){
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        //rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         int distance = d;
         //int distance = (int)(CPR / (DIAMETER * Math.PI) * d);
@@ -171,16 +174,16 @@ public class Hardware6417
         rightBack.setTargetPosition(distance);
 
         leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        //rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
         leftFront.setPower(power);
         rightFront.setPower(power);
         leftBack.setPower(power);
         rightBack.setPower(power);
 
-        while(leftBack.isBusy()){
+        while(leftFront.isBusy()){
 
         } // || rightFront.isBusy() || leftBack.isBusy() || rightBack.isBusy()
 
@@ -189,7 +192,7 @@ public class Hardware6417
         leftBack.setPower(0);
         rightBack.setPower(0);
 
-        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 
@@ -201,8 +204,8 @@ public class Hardware6417
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        int distance = d;
-        //int distance = (int)(CPR / (DIAMETER * Math.PI) * d);
+        //int distance = d;
+        int distance = (int)(CPR * d);
 
         leftFront.setTargetPosition(distance);
         rightFront.setTargetPosition(-distance);

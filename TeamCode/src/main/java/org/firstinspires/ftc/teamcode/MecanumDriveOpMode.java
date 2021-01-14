@@ -103,7 +103,7 @@ public class MecanumDriveOpMode extends LinearOpMode {
             }
 
             if (gamepad1.right_trigger >= 0.3) {
-                robot.shoot(0.7);
+                robot.shoot(0.65);
             } else {
                 robot.shoot(0);
             }
@@ -116,7 +116,7 @@ public class MecanumDriveOpMode extends LinearOpMode {
             }
 
             if (gamepad1.dpad_up) {
-                if (robot.armServo.getPosition() <= 0.9) {
+                if (robot.armServo.getPosition() <= 0.95) {
                     robot.arm(robot.armServo.getPosition() + 0.005);
                 }
             } else if (gamepad1.dpad_down) {
@@ -142,13 +142,10 @@ public class MecanumDriveOpMode extends LinearOpMode {
                 nudgeRobot(Direction.RIGHT, 30);
             } else if (gamepad2.left_bumper) {
                 nudgeRobot(Direction.RTLEFT, 30);
-            } else if (gamepad1.right_bumper) {
+            } else if (gamepad2.right_bumper) {
                 nudgeRobot(Direction.RTRIGHT, 30);
             }
-            telemetry.addData("LeftBack:", robot.leftBack.getCurrentPosition());
-            telemetry.addData("RightBack:", robot.rightBack.getCurrentPosition());
-
-            telemetry.addData("LeftBackSpeed:", robot.leftBack.getVelocity());
+            telemetry.addData("LeftFront:", robot.leftFront.getCurrentPosition());
             telemetry.addData("Arm Servo position: ", robot.armServo.getPosition());
             telemetry.update();
 
