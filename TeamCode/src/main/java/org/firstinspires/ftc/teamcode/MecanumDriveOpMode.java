@@ -102,51 +102,57 @@ public class MecanumDriveOpMode extends LinearOpMode {
                 robot.setDriveSpeeds(0, 0, 0, 0, 0);
             }
 
-            if (gamepad1.right_trigger >= 0.3) {
-                robot.shoot(0.65);
+            if (gamepad2.right_trigger >= 0.3) {
+                robot.shoot(0.75); //0.85 is good to get the top row, 0.65 for middle row
+            } else if (gamepad2.right_bumper){
+                robot.shoot(-0.75);
             } else {
                 robot.shoot(0);
             }
-            if (gamepad1.left_trigger >= 0.3) {
+            if (gamepad2.left_trigger >= 0.3) {
                 robot.intake(1);
                 robot.shooterBottom.setPower(1);
+            } else if (gamepad2.right_bumper){
+                robot.intake(-1);
+                robot.shooterBottom.setPower(-1);
             } else {
                 robot.intake(0);
                 robot.shooterBottom.setPower(0);
             }
 
-            if (gamepad1.dpad_up) {
+            if (gamepad2.dpad_up) {
                 if (robot.armServo.getPosition() <= 0.95) {
                     robot.arm(robot.armServo.getPosition() + 0.005);
                 }
-            } else if (gamepad1.dpad_down) {
+            } else if (gamepad2.dpad_down) {
                 if (robot.armServo.getPosition() >= 0.3) {
                     robot.arm(robot.armServo.getPosition() - 0.005);
                 }
             }
-            if (gamepad1.dpad_left) {
+            if (gamepad2.dpad_left) {
                 robot.grab(0);
-            } else if (gamepad1.dpad_right) {
+            } else if (gamepad2.dpad_right) {
                 robot.grab(0.8);
             }
             // nudging allows us to move a small distance more precisely
             // than we can with the gamepad sticks
 
-            if (gamepad2.dpad_up) {
+            if (gamepad1.dpad_up) {
                 nudgeRobot(Direction.FORWARD, 30);
-            } else if (gamepad2.dpad_left) {
+            } else if (gamepad1.dpad_left) {
                 nudgeRobot(Direction.LEFT, 30);
-            } else if (gamepad2.dpad_down) {
+            } else if (gamepad1.dpad_down) {
                 nudgeRobot(Direction.BACKWARD, 30);
-            } else if (gamepad2.dpad_right) {
+            } else if (gamepad1.dpad_right) {
                 nudgeRobot(Direction.RIGHT, 30);
-            } else if (gamepad2.left_bumper) {
+            } else if (gamepad1.left_bumper) {
                 nudgeRobot(Direction.RTLEFT, 30);
-            } else if (gamepad2.right_bumper) {
+            } else if (gamepad1.right_bumper) {
                 nudgeRobot(Direction.RTRIGHT, 30);
             }
             telemetry.addData("LeftFront:", robot.leftFront.getCurrentPosition());
             telemetry.addData("Arm Servo position: ", robot.armServo.getPosition());
+            //telemetry.addData("Luminosity: ", robot.color.alpha());
             telemetry.update();
 
         }
@@ -185,4 +191,6 @@ public class MecanumDriveOpMode extends LinearOpMode {
         robot.setDriveSpeeds(0, 0, 0, 0, 0);
 
     }
+
+
 }

@@ -30,12 +30,9 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.hardware.modernrobotics.ModernRoboticsI2cGyro;
-import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.IntegratingGyroscope;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
@@ -43,6 +40,9 @@ import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
+import com.qualcomm.robotcore.hardware.ColorSensor;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 
 /**
@@ -61,6 +61,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
  * Servo channel:  Servo to open left claw:  "left_hand"
  * Servo channel:  Servo to open right claw: "right_hand"
  */
+
 // Based on HardwarePushbot
 public class Hardware6417
 {
@@ -68,26 +69,24 @@ public class Hardware6417
     public DcMotorEx leftFront = null, rightFront = null, leftBack = null, rightBack = null,
             shooterTop = null, shooterBottom = null, intake = null;
 
-    BNO055IMU imu;
+    BNO055IMU               imu;
+    Orientation             lastAngles = new Orientation();
+    double                  globalAngle, power = .30, correction;
     public Servo armServo = null, grabServo = null;
+
+    public ColorSensor color;
 
     /* local OpMode members. */
     HardwareMap hwMap           =  null;
     private ElapsedTime period  = new ElapsedTime();
 
     private double RADIUS = 0;
-    private double CPR = 1440;
+    private double CPR = 753.2;
+    private double CIRC = 13.25;
+    private double CALIBRATION = 1.0;
 
     /* Constructor */
     public Hardware6417(){
-    }
-
-    private void checkOrientation() {
-        // read the orientation of the robot
-        Orientation angles = this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
-        this.imu.getPosition();
-        // and save the heading
-        double curHeading = angles.firstAngle;
     }
 
     /* Initialize standard Hardware interfaces */
@@ -107,6 +106,8 @@ public class Hardware6417
 
         armServo = hwMap.get(Servo.class, "armServo");
         grabServo = hwMap.get(Servo.class, "grabServo");
+
+        //color = hwMap.colorSensor.get("color");
 
         armServo.setPosition(0.9);
         grabServo.setPosition(0.8);
@@ -131,7 +132,7 @@ public class Hardware6417
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
-        /***
+
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
         parameters.mode                = BNO055IMU.SensorMode.IMU;
@@ -145,16 +146,16 @@ public class Hardware6417
         imu = hwMap.get(BNO055IMU.class, "imu");
 
         imu.initialize(parameters);
-         ***/
+
 
     }
 
     public void shoot(double power){
         shooterTop.setPower(-power);
-        //shooterBottom.setPower(power);
     }
 
     public void intake(double power){
+        shooterBottom.setPower(power);
         intake.setPower(-power);
     }
 
@@ -165,8 +166,7 @@ public class Hardware6417
         //leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         //rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        int distance = d;
-        //int distance = (int)(CPR / (DIAMETER * Math.PI) * d);
+        int distance = (int)(CALIBRATION * (CPR * d) / CIRC);
 
         leftFront.setTargetPosition(distance);
         rightFront.setTargetPosition(distance);
@@ -178,10 +178,12 @@ public class Hardware6417
         //leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         //rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
+        leftFront.setTargetPosition(distance);
+
         leftFront.setPower(power);
-        rightFront.setPower(power);
+        rightFront.setPower(power * 0.87);
         leftBack.setPower(power);
-        rightBack.setPower(power);
+        rightBack.setPower(power * 0.87);
 
         while(leftFront.isBusy()){
 
@@ -200,29 +202,21 @@ public class Hardware6417
     public void strafeToPosition(int d, double power){
 
         leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
         //int distance = d;
-        int distance = (int)(CPR * d);
+        int distance = (int)((CPR * d) / CIRC);
 
-        leftFront.setTargetPosition(distance);
-        rightFront.setTargetPosition(-distance);
-        leftBack.setTargetPosition(-distance);
-        rightBack.setTargetPosition(distance);
-
+        leftFront.setTargetPosition(-distance);
         leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
 
-        leftFront.setPower(power);
-        rightFront.setPower(-power);
-        leftBack.setPower(-power);
-        rightBack.setPower(power);
+        //leftFront.setTargetPosition(-distance);
 
-        while(leftBack.isBusy()){ }
+        leftFront.setPower(power); //-power * 0.6
+        rightFront.setPower(power);
+        leftBack.setPower(power); //power * 0.8
+        rightBack.setPower(-power);
+
+        while(leftFront.isBusy()){ }
 
         leftFront.setPower(0);
         rightFront.setPower(0);
@@ -230,9 +224,6 @@ public class Hardware6417
         rightBack.setPower(0);
 
         leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 
@@ -273,6 +264,89 @@ public class Hardware6417
         leftBack.setPower(0);
         rightBack.setPower(0);
 
+    }
+
+    private void resetAngle()
+    {
+        lastAngles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        globalAngle = 0;
+    }
+
+    private double getAngle()
+    {
+        // We experimentally determined the Z axis is the axis we want to use for heading angle.
+        // We have to process the angle because the imu works in euler angles so the Z axis is
+        // returned as 0 to +180 or 0 to -180 rolling back to -179 or +179 when rotation passes
+        // 180 degrees. We detect this transition and track the total cumulative angle of rotation.
+
+        Orientation angles = imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.ZYX, AngleUnit.DEGREES);
+
+        double deltaAngle = angles.firstAngle - lastAngles.firstAngle;
+
+        if (deltaAngle < -180)
+            deltaAngle += 360;
+        else if (deltaAngle > 180)
+            deltaAngle -= 360;
+
+        globalAngle += deltaAngle;
+
+        lastAngles = angles;
+
+        return globalAngle;
+    }
+
+    public void rotate(int degrees, double power, LinearOpMode instance)
+    {
+        double  leftPower, rightPower;
+
+        // restart imu movement tracking.
+        resetAngle();
+
+        // getAngle() returns + when rotating counter clockwise (left) and - when rotating
+        // clockwise (right).
+
+        if (degrees < 0)
+        {   // turn right.
+            leftPower = power;
+            rightPower = -power;
+        }
+        else if (degrees > 0)
+        {   // turn left.
+            leftPower = -power;
+            rightPower = power;
+        }
+        else return;
+
+        // set power to rotate.
+        leftFront.setPower(leftPower);
+        rightFront.setPower(rightPower);
+        leftBack.setPower(leftPower);
+        rightBack.setPower(rightPower);
+
+        // rotate until turn is completed.
+        if (degrees < 0)
+        {
+            // On right turn we have to get off zero first.
+            while (instance.opModeIsActive() && getAngle() == 0) {}
+
+            while (instance.opModeIsActive() && getAngle() > degrees) {}
+        }
+        else    // left turn.
+            while (instance.opModeIsActive() && getAngle() < degrees) {}
+
+        // turn the motors off.
+        leftFront.setPower(0);
+        rightFront.setPower(0);
+        leftBack.setPower(0);
+        rightBack.setPower(0);
+
+
+        // wait for rotation to stop.
+        instance.sleep(1000);
+
+        // reset angle tracking on new heading.
+        resetAngle();
     }
 
 }

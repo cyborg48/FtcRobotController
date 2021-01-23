@@ -1,14 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
-import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 
 
 @Disabled
-@Autonomous(name = "Encoder Test", group = "Autonomous")
-public class EncoderTest extends LinearOpMode {
+@Autonomous(name = "4 ring auto", group = "Autonomous")
+//@Disabled
+public class Auto4 extends LinearOpMode {
 
     Hardware6417 robot = new Hardware6417();
     private ElapsedTime runtime = new ElapsedTime();
@@ -34,12 +35,11 @@ public class EncoderTest extends LinearOpMode {
 
         //robot.rotate(90, 1, this);
 
-        robot.shooterBottom.setPower(1.0);
         robot.intake(1);
 
         sleep(5000);
 
-        robot.shooterBottom.setPower(0);
+        robot.intake(0);
         robot.shoot(0);
 
 

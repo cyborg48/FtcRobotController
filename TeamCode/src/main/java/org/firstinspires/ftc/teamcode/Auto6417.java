@@ -31,6 +31,7 @@ package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
@@ -84,12 +85,16 @@ public class Auto6417 extends LinearOpMode {
      */
     private TFObjectDetector tfod;
 
+    Hardware6417 robot = new Hardware6417();
+    private ElapsedTime runtime = new ElapsedTime();
+
     @Override
     public void runOpMode() {
         // The TFObjectDetector uses the camera frames from the VuforiaLocalizer, so we create that
         // first.
         initVuforia();
         initTfod();
+        robot.init(hardwareMap);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -114,11 +119,20 @@ public class Auto6417 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
+        robot.shoot(0.75);
+        robot.drivetoPosition(12, 1);
+        sleep(1000);
+        robot.rotate(-5, 1, this);
+        sleep(1000);
+
         int length = 0;
         String detected = "None";
 
+        int single = 0, quad = 0, none = 0;
+
+        // Detect number of rings
         if (opModeIsActive()) {
-            while (opModeIsActive()) {
+            for(int count = 0; count < 100; count++) {
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.
@@ -127,20 +141,27 @@ public class Auto6417 extends LinearOpMode {
                         telemetry.addData("# Object Detected", updatedRecognitions.size());
                         // step through the list of recognitions and display boundary info.
                         int i = 0;
-                        if(updatedRecognitions.size() != length){
+                        if (updatedRecognitions.size() != length) {
                             length = updatedRecognitions.size();
-                            if(length > 0) {
+                            if (length > 0) {
                                 detected = updatedRecognitions.get(0).getLabel();
                                 //telemetry.speak(detected);
-                            } else{
+                            } else {
                                 detected = "None";
                                 //telemetry.speak("None");
                             }
-                        } else{
-                            if(length > 0 && detected != updatedRecognitions.get(0).getLabel()){
+                        } else {
+                            if (length > 0 && detected != updatedRecognitions.get(0).getLabel()) {
                                 detected = updatedRecognitions.get(0).getLabel();
                                 //telemetry.speak(detected);
                             }
+                        }
+                        if (detected == "Quad") {
+                            quad++;
+                        } else if (detected == "Single") {
+                            single++;
+                        } else if (detected == "None") {
+                            none++;
                         }
                         for (Recognition recognition : updatedRecognitions) {
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
@@ -153,6 +174,76 @@ public class Auto6417 extends LinearOpMode {
                     }
                 }
             }
+        }
+
+        sleep(1000);
+        telemetry.addData("Quad", quad);
+        telemetry.addData("Single", single);
+        telemetry.addData("None", none);
+        telemetry.update();
+
+        robot.rotate(5, 1, this);
+
+        // Drive until white line
+        robot.drivetoPosition(68, 1);
+
+        // Shoot
+        robot.intake(1);
+        sleep(2500);
+        robot.intake(0);
+        robot.shoot(0);
+
+        if(single > quad && single > none){
+            robot.drivetoPosition(120, 1);
+            sleep(200);
+            robot.rotate(-75, 1, this);
+            sleep(200);
+            robot.drivetoPosition(36, 1);
+            sleep(500);
+            robot.armServo.setPosition(0.3);
+            sleep(1000);
+            robot.grabServo.setPosition(0.8);
+            sleep(500);
+            robot.armServo.setPosition(0.9);
+            robot.drivetoPosition(-30, 1);
+
+            robot.setDriveSpeeds(0, 0, 1, 1, 0);
+            sleep(2000);
+            robot.setDriveSpeeds(0, 0, 0, 0, 0);
+
+        } else if(quad > single && quad > none){
+            robot.drivetoPosition(200, 1);
+            sleep(200);
+            robot.drivetoPosition(-6, 1);
+            sleep(1000);
+            robot.rotate(-75, 1, this);
+            sleep(1000);
+            robot.armServo.setPosition(0.3);
+            sleep(1000);
+            robot.grabServo.setPosition(0.8);
+            sleep(500);
+            robot.armServo.setPosition(0.9);
+            robot.drivetoPosition(-30, 1);
+
+            robot.setDriveSpeeds(0, 0, 1, 1, 0);
+            sleep(4000);
+            robot.setDriveSpeeds(0, 0, 0, 0, 0);
+
+        } else {
+
+            robot.drivetoPosition(30, 1);
+            sleep(300);
+            robot.rotate(-75, 1, this);
+            sleep(300);
+            robot.drivetoPosition(150, 1);
+            sleep(500);
+            robot.armServo.setPosition(0.3);
+            sleep(1000);
+            robot.grabServo.setPosition(0.8);
+            sleep(500);
+            robot.armServo.setPosition(0.9);
+            robot.drivetoPosition(-12, 1);
+
         }
 
         if (tfod != null) {
