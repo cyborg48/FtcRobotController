@@ -102,8 +102,11 @@ public class MecanumDriveOpMode extends LinearOpMode {
                 robot.setDriveSpeeds(0, 0, 0, 0, 0);
             }
 
-            if (gamepad2.right_trigger >= 0.3) {
+            /***
+            if (gamepad2.a) {
                 robot.shoot(0.75); //0.85 is good to get the top row, 0.65 for middle row
+            } else if(gamepad2.b){
+                robot.shoot(0.68);
             } else if (gamepad2.right_bumper){
                 robot.shoot(-0.75);
             } else {
@@ -119,19 +122,20 @@ public class MecanumDriveOpMode extends LinearOpMode {
                 robot.intake(0);
                 robot.shooterBottom.setPower(0);
             }
+             ***/
 
             if (gamepad2.dpad_up) {
                 if (robot.armServo.getPosition() <= 0.95) {
                     robot.arm(robot.armServo.getPosition() + 0.005);
                 }
             } else if (gamepad2.dpad_down) {
-                if (robot.armServo.getPosition() >= 0.3) {
+                if (robot.armServo.getPosition() >= 0.05) {
                     robot.arm(robot.armServo.getPosition() - 0.005);
                 }
             }
-            if (gamepad2.dpad_left) {
+            if (gamepad2.dpad_right) {
                 robot.grab(0);
-            } else if (gamepad2.dpad_right) {
+            } else if (gamepad2.dpad_left) {
                 robot.grab(0.8);
             }
             // nudging allows us to move a small distance more precisely

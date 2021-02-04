@@ -1,4 +1,4 @@
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.old;
 
 /* Copyright (c) 2019 FIRST. All rights reserved.
  *
@@ -35,9 +35,11 @@ import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.robotcore.external.ClassFactory;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
+import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.VuforiaLocalizer;
 import org.firstinspires.ftc.robotcore.external.tfod.Recognition;
 import org.firstinspires.ftc.robotcore.external.tfod.TFObjectDetector;
+import org.firstinspires.ftc.teamcode.Hardware6417;
 
 import java.util.List;
 
@@ -51,9 +53,9 @@ import java.util.List;
  * IMPORTANT: In order to use this OpMode, you need to obtain your own Vuforia license key as
  * is explained below.
  */
-@Autonomous(name = "TensorFlow Object Detection Webcam", group = "Autonomous")
+@Autonomous(name = "Auto 14+ V", group = "Autonomous")
 //@Disabled
-public class Auto6417 extends LinearOpMode {
+public class Auto6417_pegs_14 extends LinearOpMode {
     private static final String TFOD_MODEL_ASSET = "UltimateGoal.tflite";
     private static final String LABEL_FIRST_ELEMENT = "Quad";
     private static final String LABEL_SECOND_ELEMENT = "Single";
@@ -119,11 +121,11 @@ public class Auto6417 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        robot.shoot(0.75);
+        robot.shoot(0.68);
         robot.drivetoPosition(12, 1);
-        sleep(1000);
-        robot.rotate(-5, 1, this);
-        sleep(1000);
+        sleep(300);
+        robot.rotate(8, 1, this);
+        sleep(300);
 
         int length = 0;
         String detected = "None";
@@ -160,15 +162,18 @@ public class Auto6417 extends LinearOpMode {
                             quad++;
                         } else if (detected == "Single") {
                             single++;
-                        } else if (detected == "None") {
+                        } else {
                             none++;
                         }
                         for (Recognition recognition : updatedRecognitions) {
                             telemetry.addData(String.format("label (%d)", i), recognition.getLabel());
+                            telemetry.addData("Angle: ", recognition.estimateAngleToObject(AngleUnit.DEGREES));
+                            /***
                             telemetry.addData(String.format("  left,top (%d)", i), "%.03f , %.03f",
                                     recognition.getLeft(), recognition.getTop());
                             telemetry.addData(String.format("  right,bottom (%d)", i), "%.03f , %.03f",
                                     recognition.getRight(), recognition.getBottom());
+                             ***/
                         }
                         telemetry.update();
                     }
@@ -176,16 +181,22 @@ public class Auto6417 extends LinearOpMode {
             }
         }
 
-        sleep(1000);
+        sleep(300);
         telemetry.addData("Quad", quad);
         telemetry.addData("Single", single);
         telemetry.addData("None", none);
         telemetry.update();
 
-        robot.rotate(5, 1, this);
+        robot.rotate(-8, 1, this);
 
         // Drive until white line
-        robot.drivetoPosition(68, 1);
+        robot.drivetoPosition(65, 1);
+
+        sleep(300);
+        robot.rotate(-3, 1, this);
+        sleep(300);
+
+        sleep(3000);
 
         // Shoot
         robot.intake(1);
@@ -193,56 +204,66 @@ public class Auto6417 extends LinearOpMode {
         robot.intake(0);
         robot.shoot(0);
 
-        if(single > quad && single > none){
-            robot.drivetoPosition(120, 1);
+        robot.rotate(3, 1, this);
+
+        if(single > quad && single > none){ // SINGLE
+            robot.drivetoPosition(56, 1);
             sleep(200);
-            robot.rotate(-75, 1, this);
+            robot.rotate(90, 1, this);
             sleep(200);
-            robot.drivetoPosition(36, 1);
-            sleep(500);
+            robot.drivetoPosition(12, 1);
+            sleep(300);
             robot.armServo.setPosition(0.3);
-            sleep(1000);
+            sleep(1500);
             robot.grabServo.setPosition(0.8);
-            sleep(500);
+            sleep(300);
             robot.armServo.setPosition(0.9);
-            robot.drivetoPosition(-30, 1);
+            robot.drivetoPosition(30, -1);
 
             robot.setDriveSpeeds(0, 0, 1, 1, 0);
-            sleep(2000);
+            sleep(800);
             robot.setDriveSpeeds(0, 0, 0, 0, 0);
 
-        } else if(quad > single && quad > none){
-            robot.drivetoPosition(200, 1);
+        } else if(quad > single && quad > none){ // QUAD
+            robot.drivetoPosition(190, 1);
             sleep(200);
-            robot.drivetoPosition(-6, 1);
-            sleep(1000);
-            robot.rotate(-75, 1, this);
-            sleep(1000);
+            robot.drivetoPosition(18, -1);
+            sleep(300);
+            robot.rotate(85, 1, this);
+            sleep(300);
+            robot.drivetoPosition(60, 1);
             robot.armServo.setPosition(0.3);
-            sleep(1000);
+            sleep(300);
+            sleep(300);
             robot.grabServo.setPosition(0.8);
-            sleep(500);
+            sleep(1500);
             robot.armServo.setPosition(0.9);
-            robot.drivetoPosition(-30, 1);
-
-            robot.setDriveSpeeds(0, 0, 1, 1, 0);
-            sleep(4000);
-            robot.setDriveSpeeds(0, 0, 0, 0, 0);
+            sleep(500);
+            robot.drivetoPosition(30, -1);
+            sleep(300);
+            robot.rotate(85, 1, this);
+            sleep(300);
+            robot.drivetoPosition(60, 1);
 
         } else {
 
-            robot.drivetoPosition(30, 1);
+            robot.drivetoPosition(3, 1);
             sleep(300);
-            robot.rotate(-75, 1, this);
+            robot.rotate(90, 1, this);
             sleep(300);
-            robot.drivetoPosition(150, 1);
-            sleep(500);
+            robot.drivetoPosition(100, 1);
+            sleep(300);
             robot.armServo.setPosition(0.3);
-            sleep(1000);
+            sleep(300);
             robot.grabServo.setPosition(0.8);
-            sleep(500);
+            sleep(1500);
             robot.armServo.setPosition(0.9);
-            robot.drivetoPosition(-12, 1);
+            sleep(300);
+            robot.drivetoPosition(30, -1);
+            sleep(300);
+            robot.rotate(-120, 1, this);
+            sleep(300);
+            robot.drivetoPosition(18, 1);
 
         }
 

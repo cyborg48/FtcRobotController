@@ -30,6 +30,7 @@
 package org.firstinspires.ftc.teamcode;
 
 import com.qualcomm.hardware.bosch.BNO055IMU;
+import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.HardwareMap;
@@ -43,6 +44,7 @@ import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 
 /**
@@ -81,9 +83,9 @@ public class Hardware6417
     private ElapsedTime period  = new ElapsedTime();
 
     private double RADIUS = 0;
-    private double CPR = 753.2;
+    private double CPR = 383.6;
     private double CIRC = 13.25;
-    private double CALIBRATION = 1.0;
+    private double CALIBRATION = 0.7;
 
     /* Constructor */
     public Hardware6417(){
@@ -94,15 +96,15 @@ public class Hardware6417
         // Save reference to Hardware map
         hwMap = ahwMap;
 
-        intake = hwMap.get(DcMotorEx.class, "intake");
+        //intake = hwMap.get(DcMotorEx.class, "intake");
 
         // Define and initialize motor
         leftFront = hwMap.get(DcMotorEx.class, "FrontLeft");
         leftBack = hwMap.get(DcMotorEx.class, "BackLeft");
         rightFront = hwMap.get(DcMotorEx.class, "FrontRight");
         rightBack = hwMap.get(DcMotorEx.class, "BackRight");
-        shooterTop = hwMap.get(DcMotorEx.class, "FrontShooter");
-        shooterBottom = hwMap.get(DcMotorEx.class, "BackShooter");
+        //shooterTop = hwMap.get(DcMotorEx.class, "FrontShooter");
+        //shooterBottom = hwMap.get(DcMotorEx.class, "BackShooter");
 
         armServo = hwMap.get(Servo.class, "armServo");
         grabServo = hwMap.get(Servo.class, "grabServo");
@@ -110,7 +112,7 @@ public class Hardware6417
         //color = hwMap.colorSensor.get("color");
 
         armServo.setPosition(0.9);
-        grabServo.setPosition(0.8);
+        //grabServo.setPosition(0.9);
 
         grabServo.setDirection(Servo.Direction.REVERSE);
 
@@ -127,8 +129,8 @@ public class Hardware6417
         rightBack.setPower(0);
 
         //armMotor.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
@@ -161,69 +163,104 @@ public class Hardware6417
 
     public void drivetoPosition(int d, double power){
 
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //rightFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-        //rightBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        power *= 0.75;
 
-        int distance = (int)(CALIBRATION * (CPR * d) / CIRC);
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        leftFront.setTargetPosition(distance);
-        rightFront.setTargetPosition(distance);
+        int distance = (int) ((CPR * d) / CIRC);
+
+        //int distance = (int) CPR;
+
+        leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBack.setTargetPosition(distance);
-        rightBack.setTargetPosition(distance);
-
-        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //rightFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        //rightBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-
-        leftFront.setTargetPosition(distance);
 
         leftFront.setPower(power);
-        rightFront.setPower(power * 0.87);
+        rightFront.setPower(power);
         leftBack.setPower(power);
-        rightBack.setPower(power * 0.87);
+        rightBack.setPower(power);
 
-        while(leftFront.isBusy()){
+        while(Math.abs(leftBack.getCurrentPosition()) < leftBack.getTargetPosition()){
 
         } // || rightFront.isBusy() || leftBack.isBusy() || rightBack.isBusy()
 
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
+        stop();
 
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        //leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 
 
-    public void strafeToPosition(int d, double power){
+    public void driveAndStop(int d, double power, LinearOpMode instance){
 
-        leftFront.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        power *= 0.75;
 
-        //int distance = d;
-        int distance = (int)((CPR * d) / CIRC);
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        leftFront.setTargetPosition(-distance);
-        leftFront.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        int distance = (int) ((CPR * d) / CIRC);
 
-        //leftFront.setTargetPosition(-distance);
+        //int distance = (int) CPR;
 
-        leftFront.setPower(power); //-power * 0.6
-        rightFront.setPower(power);
-        leftBack.setPower(power); //power * 0.8
-        rightBack.setPower(-power);
+        leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBack.setTargetPosition(distance);
 
-        while(leftFront.isBusy()){ }
+        leftFront.setPower(power);
+        rightFront.setPower(power * 0.7);
+        leftBack.setPower(power);
+        rightBack.setPower(power * 0.7);
 
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
+        while(Math.abs(leftBack.getCurrentPosition()) < leftBack.getTargetPosition()){
 
-        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        } // || rightFront.isBusy() || leftBack.isBusy() || rightBack.isBusy()
+
+        leftFront.setPower(-power);
+        rightFront.setPower(-power * 0.7);
+        leftBack.setPower(-power);
+        rightBack.setPower(-power * 0.7);
+
+        instance.sleep(100);
+
+        stop();
+
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+    }
+
+
+    public void strafeToPosition(int d, double power, LinearOpMode instance){
+
+        power *= 0.75;
+
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+        int distance = (int) ((CPR * d) / CIRC);
+
+        //int distance = (int) CPR;
+
+        leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        leftBack.setTargetPosition(distance);
+
+        leftFront.setPower(-power);
+        rightFront.setPower(power * 0.7);
+        leftBack.setPower(power);
+        rightBack.setPower(-power * 0.7);
+
+        while(Math.abs(leftBack.getCurrentPosition()) < leftBack.getTargetPosition()){
+
+        } // || rightFront.isBusy() || leftBack.isBusy() || rightBack.isBusy()
+
+        leftFront.setPower(power);
+        rightFront.setPower(-power * 0.7);
+        leftBack.setPower(-power);
+        rightBack.setPower(power * 0.7);
+
+        instance.sleep(100);
+
+        stop();
+
+        leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
     }
 
@@ -300,6 +337,12 @@ public class Hardware6417
     {
         double  leftPower, rightPower;
 
+        degrees *= -0.85;
+
+        power = Math.min(0.7, power);
+
+        //degrees *= -1;
+
         // restart imu movement tracking.
         resetAngle();
 
@@ -335,15 +378,17 @@ public class Hardware6417
         else    // left turn.
             while (instance.opModeIsActive() && getAngle() < degrees) {}
 
-        // turn the motors off.
-        leftFront.setPower(0);
-        rightFront.setPower(0);
-        leftBack.setPower(0);
-        rightBack.setPower(0);
+        leftFront.setPower(-leftPower);
+        rightFront.setPower(-rightPower);
+        leftBack.setPower(-leftPower);
+        rightBack.setPower(-rightPower);
 
+        instance.sleep(50);
+
+        stop();
 
         // wait for rotation to stop.
-        instance.sleep(1000);
+        //instance.sleep(1000);
 
         // reset angle tracking on new heading.
         resetAngle();

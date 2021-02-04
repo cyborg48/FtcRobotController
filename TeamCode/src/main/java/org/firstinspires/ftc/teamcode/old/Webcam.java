@@ -27,7 +27,7 @@
  * OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
-package org.firstinspires.ftc.teamcode;
+package org.firstinspires.ftc.teamcode.old;
 
 import android.graphics.Bitmap;
 import android.graphics.ImageFormat;
@@ -36,6 +36,7 @@ import android.os.Handler;
 import androidx.annotation.NonNull;
 
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.eventloop.opmode.Disabled;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.RobotLog;
 
@@ -72,8 +73,9 @@ import java.util.concurrent.TimeUnit;
  * by various means (e.g.: Device File Explorer in Android Studio; plugging the device into a PC and
  * using Media Transfer; ADB; etc)
  */
+@Disabled
 @Autonomous(name="Concept: Webcam", group ="Autonomous")
-//@Disabled
+
 public class Webcam extends LinearOpMode {
 
     //----------------------------------------------------------------------------------------------
