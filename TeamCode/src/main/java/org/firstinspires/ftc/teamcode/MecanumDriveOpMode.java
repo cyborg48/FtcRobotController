@@ -81,6 +81,8 @@ public class MecanumDriveOpMode extends LinearOpMode {
         waitForStart();
         runtime.reset();
 
+        robot.shoot(0.8);
+
         double leftVert, rightVert, leftHoriz, rightHoriz;
 
         // run until the end of the match (driver presses STOP)
@@ -97,39 +99,33 @@ public class MecanumDriveOpMode extends LinearOpMode {
              }
              ***/
             if (Math.abs(leftVert) > 0.3 || Math.abs(rightVert) > 0.3 || Math.abs(leftHoriz) > 0.3 || Math.abs(rightHoriz) > 0.3) {
-                robot.setDriveSpeeds(leftVert, rightVert, leftHoriz, rightHoriz, 0);
+                robot.setDriveSpeeds(leftVert, rightVert, leftHoriz, rightHoriz);
             } else {
-                robot.setDriveSpeeds(0, 0, 0, 0, 0);
+                robot.setDriveSpeeds(0, 0, 0, 0);
             }
 
-            /***
-            if (gamepad2.a) {
-                robot.shoot(0.75); //0.85 is good to get the top row, 0.65 for middle row
-            } else if(gamepad2.b){
-                robot.shoot(0.68);
-            } else if (gamepad2.right_bumper){
-                robot.shoot(-0.75);
-            } else {
-                robot.shoot(0);
-            }
+
             if (gamepad2.left_trigger >= 0.3) {
-                robot.intake(1);
-                robot.shooterBottom.setPower(1);
+                robot.intake(1.0);
+                //robot.shooterBottom.setPower(1);
             } else if (gamepad2.right_bumper){
-                robot.intake(-1);
-                robot.shooterBottom.setPower(-1);
+                robot.intake(-1.0);
+                //robot.shooterBottom.setPower(-1);
             } else {
                 robot.intake(0);
-                robot.shooterBottom.setPower(0);
+                //robot.shooterBottom.setPower(0);
             }
-             ***/
+
+            if(gamepad1.right_trigger > 0.3 || gamepad2.right_trigger > 0.3){
+                robot.feed(this);
+            }
 
             if (gamepad2.dpad_up) {
                 if (robot.armServo.getPosition() <= 0.95) {
                     robot.arm(robot.armServo.getPosition() + 0.005);
                 }
             } else if (gamepad2.dpad_down) {
-                if (robot.armServo.getPosition() >= 0.05) {
+                if (robot.armServo.getPosition() >= 0.45) {
                     robot.arm(robot.armServo.getPosition() - 0.005);
                 }
             }
@@ -171,28 +167,28 @@ public class MecanumDriveOpMode extends LinearOpMode {
 
         switch (dir) {
             case FORWARD:
-                robot.setDriveSpeeds(0.2, 0.2, 0, 0, 0);
+                robot.setDriveSpeeds(0.2, 0.2, 0, 0);
                 break;
             case BACKWARD:
-                robot.setDriveSpeeds(-0.2, -0.2, 0, 0, 0);
+                robot.setDriveSpeeds(-0.2, -0.2, 0, 0);
                 break;
             case LEFT:
-                robot.setDriveSpeeds(0, 0, -0.2, -0.2, 0);
+                robot.setDriveSpeeds(0, 0, -0.2, -0.2);
                 break;
             case RIGHT:
-                robot.setDriveSpeeds(0, 0, 0.2, 0.2, 0);
+                robot.setDriveSpeeds(0, 0, 0.2, 0.2);
                 break;
             case RTLEFT:
-                robot.setDriveSpeeds(-0.2, 0.2, 0, 0, 0);
+                robot.setDriveSpeeds(-0.2, 0.2, 0, 0);
                 break;
             case RTRIGHT:
-                robot.setDriveSpeeds(0.2, -0.2, 0, 0, 0);
+                robot.setDriveSpeeds(0.2, -0.2, 0, 0);
                 break;
         }
 
 
         sleep(sl);
-        robot.setDriveSpeeds(0, 0, 0, 0, 0);
+        robot.setDriveSpeeds(0, 0, 0, 0);
 
     }
 

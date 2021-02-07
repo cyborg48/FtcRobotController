@@ -74,7 +74,7 @@ public class Hardware6417
     BNO055IMU               imu;
     Orientation             lastAngles = new Orientation();
     double                  globalAngle, power = .30, correction;
-    public Servo armServo = null, grabServo = null;
+    public Servo armServo = null, grabServo = null, feedServo = null;
 
     public ColorSensor color;
 
@@ -83,9 +83,9 @@ public class Hardware6417
     private ElapsedTime period  = new ElapsedTime();
 
     private double RADIUS = 0;
-    private double CPR = 383.6;
+    private double CPR = 753.2;
     private double CIRC = 13.25;
-    private double CALIBRATION = 0.7;
+    private double CALIBRATION = 1.1;
 
     /* Constructor */
     public Hardware6417(){
@@ -96,22 +96,24 @@ public class Hardware6417
         // Save reference to Hardware map
         hwMap = ahwMap;
 
-        //intake = hwMap.get(DcMotorEx.class, "intake");
+        intake = hwMap.get(DcMotorEx.class, "intake");
 
         // Define and initialize motor
         leftFront = hwMap.get(DcMotorEx.class, "FrontLeft");
         leftBack = hwMap.get(DcMotorEx.class, "BackLeft");
         rightFront = hwMap.get(DcMotorEx.class, "FrontRight");
         rightBack = hwMap.get(DcMotorEx.class, "BackRight");
-        //shooterTop = hwMap.get(DcMotorEx.class, "FrontShooter");
+        shooterTop = hwMap.get(DcMotorEx.class, "shooter");
         //shooterBottom = hwMap.get(DcMotorEx.class, "BackShooter");
 
         armServo = hwMap.get(Servo.class, "armServo");
         grabServo = hwMap.get(Servo.class, "grabServo");
+        feedServo = hwMap.get(Servo.class, "feedServo");
 
         //color = hwMap.colorSensor.get("color");
 
         armServo.setPosition(0.9);
+        feedServo.setPosition(0.6);
         //grabServo.setPosition(0.9);
 
         grabServo.setDirection(Servo.Direction.REVERSE);
@@ -121,6 +123,7 @@ public class Hardware6417
         leftBack.setDirection(DcMotor.Direction.FORWARD);
         rightFront.setDirection(DcMotor.Direction.FORWARD);
         rightBack.setDirection(DcMotor.Direction.REVERSE);
+        shooterTop.setDirection(DcMotor.Direction.REVERSE);
 
         // Set all motors to zero power
         leftFront.setPower(0);
@@ -133,7 +136,6 @@ public class Hardware6417
         leftBack.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rightFront.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         rightBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
-
 
         BNO055IMU.Parameters parameters = new BNO055IMU.Parameters();
 
@@ -157,7 +159,7 @@ public class Hardware6417
     }
 
     public void intake(double power){
-        shooterBottom.setPower(power);
+        //shooterBottom.setPower(power);
         intake.setPower(-power);
     }
 
@@ -167,7 +169,7 @@ public class Hardware6417
 
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        int distance = (int) ((CPR * d) / CIRC);
+        int distance = (int) (CALIBRATION * (CPR * d) / CIRC);
 
         //int distance = (int) CPR;
 
@@ -197,7 +199,7 @@ public class Hardware6417
 
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
-        int distance = (int) ((CPR * d) / CIRC);
+        int distance = (int) (CALIBRATION * (CPR * d) / CIRC);
 
         //int distance = (int) CPR;
 
@@ -205,9 +207,9 @@ public class Hardware6417
         leftBack.setTargetPosition(distance);
 
         leftFront.setPower(power);
-        rightFront.setPower(power * 0.7);
+        rightFront.setPower(power * 0.8);
         leftBack.setPower(power);
-        rightBack.setPower(power * 0.7);
+        rightBack.setPower(power * 0.8);
 
         while(Math.abs(leftBack.getCurrentPosition()) < leftBack.getTargetPosition()){
 
@@ -241,19 +243,19 @@ public class Hardware6417
         leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBack.setTargetPosition(distance);
 
-        leftFront.setPower(-power);
-        rightFront.setPower(power * 0.7);
-        leftBack.setPower(power);
-        rightBack.setPower(-power * 0.7);
+        leftFront.setPower(-power * 0.65);
+        rightFront.setPower(power * (1/0.75));
+        leftBack.setPower(power * 0.75);
+        rightBack.setPower(-power * 0.55);
 
         while(Math.abs(leftBack.getCurrentPosition()) < leftBack.getTargetPosition()){
 
         } // || rightFront.isBusy() || leftBack.isBusy() || rightBack.isBusy()
 
         leftFront.setPower(power);
-        rightFront.setPower(-power * 0.7);
+        rightFront.setPower(-power);
         leftBack.setPower(-power);
-        rightBack.setPower(power * 0.7);
+        rightBack.setPower(power);
 
         instance.sleep(100);
 
@@ -264,12 +266,12 @@ public class Hardware6417
 
     }
 
-    public void setDriveSpeeds(double leftVert, double rightVert, double leftHoriz, double rightHoriz, double correction) {
+    public void setDriveSpeeds(double leftVert, double rightVert, double leftHoriz, double rightHoriz) {
 
-        double frontLeftSpeed = leftVert - leftHoriz - correction; //-correction
-        double frontRightSpeed = rightVert + rightHoriz + correction; //+correction
-        double backLeftSpeed = leftVert + leftHoriz - correction; //-correction
-        double backRightSpeed = rightVert - rightHoriz + correction; //+correction
+        double frontLeftSpeed = leftVert - leftHoriz; //-correction
+        double frontRightSpeed = rightVert + rightHoriz; //+correction
+        double backLeftSpeed = leftVert + leftHoriz; //-correction
+        double backRightSpeed = rightVert - rightHoriz; //+correction
 
         double largest = 1.0;
         largest = Math.max(largest, Math.abs(frontLeftSpeed));
@@ -392,6 +394,12 @@ public class Hardware6417
 
         // reset angle tracking on new heading.
         resetAngle();
+    }
+
+    public void feed(LinearOpMode instance){
+        feedServo.setPosition(0.4);
+        instance.sleep(150);
+        feedServo.setPosition(0.6);
     }
 
 }

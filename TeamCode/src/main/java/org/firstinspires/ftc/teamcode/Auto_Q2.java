@@ -90,9 +90,9 @@ public class Auto_Q2 extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     int[][] distances = {
-            {90, 0, 24}, // SINGLE
-            {160, 35, 90}, // QUAD
-            {12, 35, 0} // NONE
+            {26, 0, 12}, // SINGLE
+            {64, 30, 56}, // QUAD
+            {9, 28, -3} // NONE
     };
 
     @Override
@@ -135,31 +135,30 @@ public class Auto_Q2 extends LinearOpMode {
         telemetry.update();
         waitForStart();
 
-        //robot.shoot(0.73);
-        robot.driveAndStop(20, 1, this);
-        sleep(500);
+        robot.shoot(0.8);
+        robot.driveAndStop(12, 1, this);
+        sleep(700);
 
         // Detect number of rings
         String detection = detect();
 
         // Drive until white line
-        robot.driveAndStop(81, 1, this);
+        robot.driveAndStop(42, 1, this);
 
         sleep(500);
-        robot.rotate(8, 1, this);
+        //robot.rotate(4, 1, this);
 
         sleep(500);
 
         // Shoot
+        for(int i = 0; i < 5; i++){
+            robot.feed(this);
+            sleep(200);
+        }
 
-        /***
-        robot.intake(1);
-        sleep(1500);
-        robot.intake(0);
         robot.shoot(0);
-         ***/
 
-        robot.rotate(-8, 1, this);
+        //robot.rotate(-4, 1, this);
 
         if(detection.equals("Single")){
             nav(distances[0]);
@@ -233,7 +232,7 @@ public class Auto_Q2 extends LinearOpMode {
         int single = 0, quad = 0, none = 0;
 
         if (opModeIsActive()) {
-            for(int count = 0; count < 50; count++) {
+            for(int count = 0; count < 100; count++) {
                 if (tfod != null) {
                     // getUpdatedRecognitions() will return null if no new information is available since
                     // the last time that call was made.

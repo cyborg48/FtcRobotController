@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.Hardware6417;
 
 
 @Autonomous(name = "Test", group = "Autonomous")
-public class EncoderTest extends LinearOpMode {
+public class AutoTest extends LinearOpMode {
 
     Hardware6417 robot = new Hardware6417();
     private ElapsedTime runtime = new ElapsedTime();
@@ -24,17 +24,10 @@ public class EncoderTest extends LinearOpMode {
         waitForStart();
 
 
-        //telemetry.addData("Current: " , robot.leftFront.getCurrentPosition());
-        robot.driveAndStop(24, 1, this);
-        sleep(1000);
-        robot.rotate(90, 1, this);
-        //telemetry.addData("New:", robot.leftFront.getCurrentPosition());
-        telemetry.update();
-
-        sleep(5000);
 
 
-        //robot.strafeToPosition(24, 1);
+
+
 
 
     }
