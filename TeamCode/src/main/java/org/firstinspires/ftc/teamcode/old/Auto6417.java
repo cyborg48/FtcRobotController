@@ -212,9 +212,9 @@ public class Auto6417 extends LinearOpMode {
             robot.armServo.setPosition(0.9);
             robot.drivetoPosition(-30, 1);
 
-            robot.setDriveSpeeds(0, 0, 1, 1, 0);
+            robot.setDriveSpeeds(0, 0, 1, 1);
             sleep(100);
-            robot.setDriveSpeeds(0, 0, 0, 0, 0);
+            robot.setDriveSpeeds(0, 0, 0, 0);
 
         } else if(quad > single && quad > none){
             robot.drivetoPosition(200, 1);
@@ -231,9 +231,9 @@ public class Auto6417 extends LinearOpMode {
             robot.armServo.setPosition(0.9);
             robot.drivetoPosition(-30, 1);
 
-            robot.setDriveSpeeds(0, 0, 1, 1, 0);
+            robot.setDriveSpeeds(0, 0, 1, 1);
             sleep(4000);
-            robot.setDriveSpeeds(0, 0, 0, 0, 0);
+            robot.setDriveSpeeds(0, 0, 0, 0);
 
         } else {
 

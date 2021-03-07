@@ -195,7 +195,7 @@ public class Hardware6417
 
     public void driveAndStop(int d, double power, LinearOpMode instance){
 
-        power *= 0.75;
+        power *= 0.85;
 
         leftBack.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -207,18 +207,18 @@ public class Hardware6417
         leftBack.setTargetPosition(distance);
 
         leftFront.setPower(power);
-        rightFront.setPower(power * 0.8);
+        rightFront.setPower(power * 0.70);
         leftBack.setPower(power);
-        rightBack.setPower(power * 0.8);
+        rightBack.setPower(power * 0.70);
 
-        while(Math.abs(leftBack.getCurrentPosition()) < leftBack.getTargetPosition()){
+        while(Math.abs(leftBack.getCurrentPosition()) < Math.abs(leftBack.getTargetPosition())){
 
         } // || rightFront.isBusy() || leftBack.isBusy() || rightBack.isBusy()
 
         leftFront.setPower(-power);
-        rightFront.setPower(-power * 0.7);
+        rightFront.setPower(-power);
         leftBack.setPower(-power);
-        rightBack.setPower(-power * 0.7);
+        rightBack.setPower(-power);
 
         instance.sleep(100);
 
@@ -243,10 +243,10 @@ public class Hardware6417
         leftBack.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         leftBack.setTargetPosition(distance);
 
-        leftFront.setPower(-power * 0.65);
+        leftFront.setPower(-power * 0.55);
         rightFront.setPower(power * (1/0.75));
         leftBack.setPower(power * 0.75);
-        rightBack.setPower(-power * 0.55);
+        rightBack.setPower(-power * 0.45);
 
         while(Math.abs(leftBack.getCurrentPosition()) < leftBack.getTargetPosition()){
 
@@ -339,7 +339,7 @@ public class Hardware6417
     {
         double  leftPower, rightPower;
 
-        degrees *= -0.85;
+        degrees *= -0.8;
 
         power = Math.min(0.7, power);
 
@@ -398,7 +398,7 @@ public class Hardware6417
 
     public void feed(LinearOpMode instance){
         feedServo.setPosition(0.4);
-        instance.sleep(150);
+        instance.sleep(180);
         feedServo.setPosition(0.6);
     }
 

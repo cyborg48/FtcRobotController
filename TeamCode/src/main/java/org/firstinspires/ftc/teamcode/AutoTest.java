@@ -24,11 +24,7 @@ public class AutoTest extends LinearOpMode {
         waitForStart();
 
 
-
-
-
-
-
+        robot.driveAndStop(-48, -1, this);
 
     }
 

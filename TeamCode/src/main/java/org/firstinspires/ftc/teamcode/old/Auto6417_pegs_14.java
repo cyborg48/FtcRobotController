@@ -220,9 +220,9 @@ public class Auto6417_pegs_14 extends LinearOpMode {
             robot.armServo.setPosition(0.9);
             robot.drivetoPosition(30, -1);
 
-            robot.setDriveSpeeds(0, 0, 1, 1, 0);
+            robot.setDriveSpeeds(0, 0, 1, 1);
             sleep(800);
-            robot.setDriveSpeeds(0, 0, 0, 0, 0);
+            robot.setDriveSpeeds(0, 0, 0, 0);
 
         } else if(quad > single && quad > none){ // QUAD
             robot.drivetoPosition(190, 1);

@@ -90,9 +90,9 @@ public class Auto_Q2 extends LinearOpMode {
     private ElapsedTime runtime = new ElapsedTime();
 
     int[][] distances = {
-            {26, 0, 12}, // SINGLE
-            {64, 30, 56}, // QUAD
-            {9, 28, -3} // NONE
+            {40+34, 6, 95, 67}, // SINGLE
+            {72+34, 30, 90, 38}, // QUAD
+            {17+34, 28, 90, 34} // NONE
     };
 
     @Override
@@ -102,6 +102,7 @@ public class Auto_Q2 extends LinearOpMode {
         initVuforia();
         initTfod();
         robot.init(hardwareMap);
+        robot.grabServo.setPosition(0);
 
         /**
          * Activate TensorFlow Object Detection before we wait for the start command.
@@ -109,63 +110,55 @@ public class Auto_Q2 extends LinearOpMode {
          **/
         if (tfod != null) {
             tfod.activate();
-
-            // The TensorFlow software will scale the input images from the camera to a lower resolution.
-            // This can result in lower detection accuracy at longer distances (> 55cm or 22").
-            // If your target is at distance greater than 50 cm (20") you can adjust the magnification value
-            // to artificially zoom in to the center of image.  For best results, the "aspectRatio" argument
-            // should be set to the value of the images used to create the TensorFlow Object Detection model
-            // (typically 1.78 or 16/9).
-
-            // Uncomment the following line if you want to adjust the magnification and/or the aspect ratio of the input images.
-            //tfod.setZoom(2.5, 1.78);
         }
-
-
-        /***
-
-         - New Auto Plan (changes):
-            Shoot at top row
-            Strafe to white line
-
-         */
 
         /** Wait for the game to begin */
         telemetry.addData(">", "Press Play to start op mode");
         telemetry.update();
         waitForStart();
 
-        robot.shoot(0.8);
-        robot.driveAndStop(12, 1, this);
-        sleep(700);
+        robot.shoot(0.72);
+        sleep(200);
+        //robot.driveAndStop(2, 1, this);
+        robot.rotate(-4, 1, this);
+
+
+        sleep(1800);
+
+        // Shoot
+        for(int i = 0; i < 3; i++){
+            robot.feed(this);
+            sleep(1200);
+        }
+        robot.shoot(0);
+
+        robot.rotate(4, 1, this);
+        sleep(200);
+
+        robot.driveAndStop(9, 1, this);
+        sleep(1000);
 
         // Detect number of rings
         String detection = detect();
 
         // Drive until white line
-        robot.driveAndStop(42, 1, this);
+        //robot.driveAndStop(34, 1, this);
 
-        sleep(500);
+        //robot.rotate(-2, 1, this);
+
+        //sleep(500);
         //robot.rotate(4, 1, this);
 
-        sleep(500);
-
-        // Shoot
-        for(int i = 0; i < 5; i++){
-            robot.feed(this);
-            sleep(200);
-        }
-
-        robot.shoot(0);
-
-        //robot.rotate(-4, 1, this);
+        //sleep(500);
 
         if(detection.equals("Single")){
             nav(distances[0]);
+            grabWobbleSingle();
         } else if(detection.equals("Quad")){
             nav(distances[1]);
         } else{
             nav(distances[2]);
+            grabWobbleNone();
         }
 
         if (tfod != null) {
@@ -211,18 +204,56 @@ public class Auto_Q2 extends LinearOpMode {
         sleep(200);
         robot.driveAndStop(distances[1], 1, this);
         sleep(200);
-        dropWobble();
+        dropArm(true);
         sleep(200);
-        robot.strafeToPosition(distances[2], 1, this);
+        robot.rotate(distances[2], 1, this);
+        sleep(200);
+        robot.armServo.setPosition(0.21);
+        robot.grabServo.setPosition(0.8);
+        robot.driveAndStop(distances[3], 1, this);
+    }
+
+    private void grabWobbleNone(){
+        sleep(200);
+        dropArm(false);
+        sleep(200);
+        robot.driveAndStop(-36, -1, this);
+        sleep(200);
+        robot.rotate(-90, 1, this);
+        dropArm(true);
+    }
+
+    private void grabWobbleSingle(){
+        //robot.driveAndStop(12, 1, this);
+        //pickup(true);
+        sleep(200);
+        robot.rotate(-90, 1, this);
+        sleep(200);
+        robot.driveAndStop(23, 0.7, this);
+        sleep(200);
+        dropArm(false);
+        sleep(200);
+        robot.rotate(-100, 1, this);
+        robot.driveAndStop(56, 1, this);
+        dropArm(true);
+        //robot.driveAndStop(-12, -1, this);
 
     }
 
-    private void dropWobble(){
-        robot.armServo.setPosition(0.1);
-        sleep(300);
-        robot.grabServo.setPosition(0.8);
+    private void dropArm(boolean drop){
+        robot.armServo.setPosition(0.21);
+        sleep(800);
+        if(drop) {
+            robot.grabServo.setPosition(0.8);
+        } else{
+            robot.grabServo.setPosition(0);
+        }
         sleep(1000);
         robot.armServo.setPosition(0.9);
+    }
+
+    private void pickup(boolean single){
+
     }
 
     private String detect(){
@@ -242,6 +273,7 @@ public class Auto_Q2 extends LinearOpMode {
                         // step through the list of recognitions and display boundary info.
                         int i = 0;
                         if (updatedRecognitions.size() != length) {
+
                             length = updatedRecognitions.size();
                             if (length > 0) {
                                 detected = updatedRecognitions.get(0).getLabel();

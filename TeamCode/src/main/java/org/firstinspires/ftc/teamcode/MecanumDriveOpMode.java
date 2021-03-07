@@ -125,7 +125,7 @@ public class MecanumDriveOpMode extends LinearOpMode {
                     robot.arm(robot.armServo.getPosition() + 0.005);
                 }
             } else if (gamepad2.dpad_down) {
-                if (robot.armServo.getPosition() >= 0.45) {
+                if (robot.armServo.getPosition() >= 0.21) {
                     robot.arm(robot.armServo.getPosition() - 0.005);
                 }
             }
